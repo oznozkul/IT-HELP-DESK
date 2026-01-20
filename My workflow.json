@@ -1,0 +1,139 @@
+{
+  "name": "My workflow",
+  "nodes": [
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=ROLE: Sen profesyonel bir IT Destek Masası uzmanısın.\n\nGÖREV: Aşağıdaki JSON listesinde (id ve body içeren) sunulan talepleri analiz et ve her biri için en uygun kategoriyi belirle.\n\nKATEGORİLER: SADECE şu 6 değerden birini seçmelisin: Bağlantı, Donanım, Erişim, Yazılım, Kullanıcı Yönetimi, Raporlama.\n\nÇIKTI KISITLAMALARI:\n\nYanıtın SADECE ve SADECE geçerli bir JSON array (liste) olmalıdır.\n\nYanıtın başına veya sonuna asla json, veya herhangi bir açıklama metni ekleme.\n\nÇıktı formatı kesinlikle şu örnekteki gibi olmalıdır: [{\"id\": 1, \"category\": \"Erişim\"}, {\"id\": 2, \"category\": \"Bağlantı\"}].\n\nGİRDİ VERİSİ: {{ JSON.stringify($json.body) }}",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 3.1,
+      "position": [
+        784,
+        -240
+      ],
+      "id": "7a8b56b2-76f9-4e9d-99b4-79d6991d9309",
+      "name": "AI Agent",
+      "retryOnFail": true,
+      "alwaysOutputData": false
+    },
+    {
+      "parameters": {
+        "modelName": "models/gemini-robotics-er-1.5-preview",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatGoogleGemini",
+      "typeVersion": 1,
+      "position": [
+        784,
+        -48
+      ],
+      "id": "089e0ae3-692f-454e-addd-dde4e379e6ee",
+      "name": "Google Gemini Chat Model",
+      "credentials": {
+        "googlePalmApi": {
+          "id": "LdyBdn5eBqgrbMZL",
+          "name": "Google Gemini(PaLM) Api account 2"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "61f5ce34-dd62-4ff6-b093-86b5dd46db98",
+        "responseMode": "lastNode",
+        "responseData": "allEntries",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2.1,
+      "position": [
+        448,
+        -208
+      ],
+      "id": "c89dfc2a-7161-4d43-afaf-2419b85d6059",
+      "name": "Webhook",
+      "webhookId": "61f5ce34-dd62-4ff6-b093-86b5dd46db98"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "e2f3f032-b4cd-4462-b95f-90dd77cf9a36",
+              "name": "category",
+              "value": "={{ $json.output }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        1152,
+        -224
+      ],
+      "id": "10584e84-54de-4285-9b30-1cdbeb958853",
+      "name": "Edit Fields"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Google Gemini Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Agent": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Webhook": {
+      "main": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Edit Fields": {
+      "main": [
+        []
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1",
+    "availableInMCP": false,
+    "timeSavedMode": "fixed",
+    "callerPolicy": "workflowsFromSameOwner",
+    "executionTimeout": -1
+  },
+  "versionId": "dc2f6cb6-6249-4c02-91f9-651becc917f9",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "af70e2c280f20ee336db25829c63dda3b2d93d22b3f2cb9c4648cc1585d710aa"
+  },
+  "id": "OKsRLs2sXyKusF6WXo004",
+  "tags": []
+}
